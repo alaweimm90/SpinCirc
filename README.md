@@ -226,7 +226,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
 
 <strong>Dr. Meshal Alawein</strong><br/>
-<em>Principal Research Scientist</em><br/>
+<em>Computational Physicist & Research Scientist</em><br/>
 University of California, Berkeley
 
 ---
@@ -259,7 +259,8 @@ Science can be hard. This is my way of helping. ⚛️
 
 ---
 
-*Built with precision at UC Berkeley — Advancing the frontiers of computational spintronics*
+*Crafted with love, 🐻 energy, and zero sleep.*
+
 
 <p align="center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/UC_Berkeley_wordmark_blue.svg/320px-UC_Berkeley_wordmark_blue.svg.png" alt="UC Berkeley" height="40"/>
