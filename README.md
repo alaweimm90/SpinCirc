@@ -260,8 +260,3 @@ Science can be hard. This is my way of helping. ⚛️
 ---
 
 *Crafted with love, 🐻 energy, and zero sleep.*
-
-
-<p align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/UC_Berkeley_wordmark_blue.svg/320px-UC_Berkeley_wordmark_blue.svg.png" alt="UC Berkeley" height="40"/>
-</p>
