@@ -199,17 +199,22 @@ If you use SpinCirc in your research, please cite:
 }
 ```
 
-## 🪪 License
+## License
 
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.  
-© 2025 Dr. Meshal Alawein – All rights reserved.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**Copyright © 2025 Dr. Meshal Alawein — All rights reserved.**
 
 ---
 
+## Connect & Collaborate
 <div align="center">
-<strong>Dr. Meshal Alawein</strong><br/>
-<em>Computational Physicist & Research Scientist</em><br/>
+
+**Dr. Meshal Alawein**  
+*Research Scientist | Computational Physics & Materials Modeling*  
 University of California, Berkeley
+
+---
 
 📧 <a href="mailto:meshal@berkeley.edu" style="color:#003262;">meshal@berkeley.edu</a>
 
@@ -228,14 +233,18 @@ University of California, Berkeley
 <a href="https://simcore.dev" title="SimCore">
   <img src="https://img.shields.io/badge/SimCore-FDB515?style=flat&logo=atom&logoColor=white" alt="SimCore" height="32" />
 </a>
-</div>
 
-<p align="center"><em>
+</div>
+<p align="center">
+<em>
 Made with love, and a deep respect for the struggle.<br/>
 For those still learning—from someone who still is.<br/>
 Science can be hard. This is my way of helping. ⚛️
-</em></p>
+</em>
+</p>
+
+</div>
 
 ---
 
-Crafted with love, 🐻 energy, and zero sleep.
+*Crafted with love, 🐻 energy, and zero sleep.*
