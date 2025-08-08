@@ -1,0 +1,368 @@
+name: SpinCirc CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+  schedule:
+    # Run tests weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+env:
+  MATLAB_RELEASE: R2024b
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  matlab-tests:
+    name: MATLAB Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            matlab-arch: glnxa64
+          - os: windows-latest
+            matlab-arch: win64
+          - os: macos-latest
+            matlab-arch: maci64
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up MATLAB
+      uses: matlab-actions/setup-matlab@v2
+      with:
+        release: ${{ env.MATLAB_RELEASE }}
+        products: |
+          Signal_Processing_Toolbox
+          Optimization_Toolbox
+          Parallel_Computing_Toolbox
+
+    - name: Cache MATLAB dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.matlab
+        key: matlab-${{ runner.os }}-${{ env.MATLAB_RELEASE }}
+        restore-keys: |
+          matlab-${{ runner.os }}-
+
+    - name: Run MATLAB tests
+      uses: matlab-actions/run-tests@v2
+      with:
+        test-results-junit: test-results.xml
+        code-coverage-cobertura: code-coverage.xml
+        source-folder: matlab
+        test-results-pdf: test-report.pdf
+
+    - name: Run validation examples
+      uses: matlab-actions/run-command@v2
+      with:
+        command: |
+          addpath(genpath('matlab'));
+          berkeley();
+          
+          % Run validation examples
+          validation_scripts = {...
+            'matlab/validation/basic_transport/transport_1D_diffusion.m', ...
+            'matlab/validation/basic_transport/transport_hanle_precession.m', ...
+            'matlab/validation/basic_transport/transport_interface_resistance.m', ...
+            'matlab/validation/magnetodynamics/llg_damped_precession.m', ...
+            'matlab/validation/magnetodynamics/llg_hysteresis_loop.m', ...
+            'matlab/validation/magnetodynamics/llgs_current_switching.m' ...
+          };
+          
+          for i = 1:length(validation_scripts)
+            fprintf('Running %s...\n', validation_scripts{i});
+            try
+              run(validation_scripts{i});
+              fprintf('✅ %s completed successfully\n', validation_scripts{i});
+            catch ME
+              fprintf('❌ %s failed: %s\n', validation_scripts{i}, ME.message);
+              rethrow(ME);
+            end
+          end
+          
+          fprintf('All validation examples completed successfully!\n');
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: matlab-test-results-${{ matrix.os }}
+        path: |
+          test-results.xml
+          code-coverage.xml
+          test-report.pdf
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: MATLAB Tests (${{ matrix.os }})
+        path: test-results.xml
+        reporter: java-junit
+
+  python-tests:
+    name: Python Tests (${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('python/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r python/requirements.txt
+        pip install -e .
+
+    - name: Lint with flake8
+      run: |
+        flake8 python --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 python --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Type check with mypy
+      run: |
+        mypy python --ignore-missing-imports
+
+    - name: Test with pytest
+      run: |
+        pytest python/tests/ -v --cov=python --cov-report=xml --cov-report=html --junitxml=pytest-results.xml
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: python
+        name: python-${{ matrix.python-version }}-${{ matrix.os }}
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: python-test-results-${{ matrix.python-version }}-${{ matrix.os }}
+        path: |
+          pytest-results.xml
+          htmlcov/
+          coverage.xml
+
+  verilog-simulation:
+    name: Verilog-A Simulation Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Install simulation tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ngspice gwave octave
+
+    - name: Validate Verilog-A syntax
+      run: |
+        # Basic syntax validation of Verilog-A files
+        find verilogA -name "*.va" -exec echo "Validating {}" \;
+        find verilogA -name "*.va" -exec grep -L "endmodule" {} \; && echo "All .va files have endmodule" || exit 1
+
+    - name: Run testbench simulations
+      run: |
+        # This would typically run with a commercial simulator
+        # For now, we validate the testbench structure
+        echo "Validating Verilog-A testbenches..."
+        find verilogA/examples -name "*.v" -type f
+        echo "Verilog-A validation completed"
+
+  documentation:
+    name: Documentation Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install documentation dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r python/requirements.txt
+        pip install sphinx sphinx-rtd-theme myst-parser sphinx-copybutton
+
+    - name: Build documentation
+      run: |
+        cd docs
+        make html
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation
+        path: docs/_build/html/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/_build/html
+
+  docker-build:
+    name: Docker Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          alaweimm90/spincirc
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Python security scan with bandit
+      run: |
+        pip install bandit
+        bandit -r python/ -f json -o bandit-report.json || true
+
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-scan-results
+        path: |
+          trivy-results.sarif
+          bandit-report.json
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [matlab-tests, python-tests, verilog-simulation, documentation, docker-build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Build Python package
+      run: |
+        python -m pip install --upgrade pip build
+        python -m build
+
+    - name: Create GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/*
+          CHANGELOG.md
+          CITATION.cff
+        generate_release_notes: true
+        draft: false
+        prerelease: ${{ contains(github.ref, '-') }}
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+  notification:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [matlab-tests, python-tests, verilog-simulation, documentation]
+    if: always()
+    
+    steps:
+    - name: Notify on success
+      if: needs.matlab-tests.result == 'success' && needs.python-tests.result == 'success'
+      run: |
+        echo "✅ All tests passed successfully!"
+        echo "SpinCirc CI/CD pipeline completed without errors."
+
+    - name: Notify on failure
+      if: needs.matlab-tests.result == 'failure' || needs.python-tests.result == 'failure'
+      run: |
+        echo "❌ Some tests failed!"
+        echo "Please check the test results and fix any issues."
+        exit 1

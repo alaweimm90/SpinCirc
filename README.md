@@ -1,202 +1,191 @@
 # SpinCirc: Advanced Spin Transport Circuit Framework
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![MATLAB](https://img.shields.io/badge/MATLAB-R2024b+-blue.svg)](https://www.mathworks.com/products/matlab.html)
-[![Python](https://img.shields.io/badge/Python-3.9+-green.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)](#testing-validation)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![MATLAB](https://img.shields.io/badge/MATLAB-R2024b+-orange.svg)](https://www.mathworks.com/products/matlab.html)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![Verilog-A](https://img.shields.io/badge/VerilogA-IEEE1800-green.svg)](https://en.wikipedia.org/wiki/Verilog-AMS)
 
-*A comprehensive cross-platform MATLAB/Python/Verilog-A scientific computing framework for computational spintronics and magnetodynamics — implemented in MATLAB, Python, and Verilog-A with Berkeley-themed visualization.*
+**A comprehensive computational framework implementing equivalent-circuit spin-transport formalism for advanced spintronic device modeling and simulation.**
 
-**Core subject areas covered (fully implemented):**
+## 🔬 Scope of Simulation
 
-- **Spintronics**: Spin transport, Giant magnetoresistance, Tunnel magnetoresistance
-- **Magnetodynamics**: LLG/LLGS equations, Spin-transfer torque, Spin-orbit torque
-- **Device Physics**: All-spin logic, Spin valves, Multiferroic devices, SOT devices
-- **Circuit Modeling**: 4×4 conductance matrices, F/N/F heterostructures, Interface physics
-- **Numerical Methods**: Adaptive integration, Parallel computing, Monte Carlo analysis
-- **Visualization**: Berkeley color schemes, 3D trajectory plots, Publication-quality figures
+SpinCirc covers multiple domains of computational spintronics:
+- **Spin Transport Physics** — Drift-diffusion equations with 4×4 conductance matrix formalism
+- **Magnetization Dynamics** — LLG/LLGS integration with thermal fluctuations
+- **Device Modeling** — MTJs, spin valves, all-spin logic, multiferroic devices
+- **Circuit Integration** — SPICE-compatible compact models for system-level design
+- **Material Physics** — Comprehensive database of spintronic materials and interfaces
 
-**Author**: Dr. Meshal Alawein (meshal@berkeley.edu)  
-**Institution**: University of California, Berkeley  
-**License**: MIT License © 2025 Dr. Meshal Alawein — All rights reserved
+## 📋 Overview
 
----
+SpinCirc implements the theoretical framework from *Alawein & Fariborzi, IEEE J-XCDC 2018* for modeling spin transport in ferromagnetic/normal-metal heterostructures. The framework provides:
 
-## Project Overview
+- **MATLAB Core Engine** — High-performance solvers for coupled transport-magnetodynamics
+- **Python Analysis Tools** — Advanced data processing and machine learning integration  
+- **Verilog-A Models** — Industry-standard compact models for circuit simulators
+- **Validation Suite** — Extensive benchmarking against experimental literature
 
-SpinCirc implements the equivalent-circuit spin-transport formalism from "Circuit Models for Spintronic Devices Subject to Electric and Magnetic Fields" (Alawein & Fariborzi, IEEE J-XCDC 2018). The framework provides cutting-edge computational tools for spintronic device modeling, featuring 4×4 conductance matrix formalism, time-dependent drift-diffusion solvers, and advanced magnetodynamics with LLG/LLGS integration.
+## ✨ Key Features
 
-<p align="center">
-  <img src="docs/images/spincirc_overview.png" alt="SpinCirc Framework Overview" width="800"/>
-</p>
+### Core Physics Models
+- 4×4 conductance matrix formalism for F/N/F heterostructures
+- Self-consistent spin transport + magnetization dynamics coupling
+- Temperature-dependent material properties and stochastic effects
+- Interface transmission probabilities and contact resistance modeling
 
-## Quick Start
+### Device Library
+- **Magnetic Tunnel Junctions (MTJs)** — TMR, bias dependence, switching dynamics
+- **Nonlocal Spin Valves** — Hanle precession, temperature characterization
+- **All-Spin Logic (ASL)** — Cascaded logic with process variation analysis
+- **Multiferroic Devices** — Voltage-controlled magnetic anisotropy (VCMA)
 
-### Prerequisites
-- **MATLAB R2024b+** with Signal Processing, Optimization, and Parallel Computing Toolboxes
-- **Python 3.9+** with NumPy, SciPy, Matplotlib
-- **Git** for version control
+### Numerical Methods
+- Multiple LLG integration schemes (RK4, RK45, Dormand-Prince)
+- Adaptive mesh refinement for transport solvers
+- Parallel computing support and GPU acceleration
+- Advanced Monte Carlo for process variation studies
 
-### Installation
-```bash
-# Clone the repository
-git clone https://github.com/alaweimm90/SpinCirc.git
-cd SpinCirc
+## 🛠️ Installation
 
-# Start MATLAB and add to path
-```
-
+### MATLAB Requirements
 ```matlab
-% In MATLAB
+% Requires MATLAB R2024b+ with toolboxes:
+% - Signal Processing Toolbox
+% - Optimization Toolbox
+% - Parallel Computing Toolbox (optional)
+
+% Add SpinCirc to MATLAB path
 addpath(genpath('matlab'));
-berkeley();  % Apply Berkeley styling
-
-% Run a quick test
-runtests('matlab/tests');
-
-% Try a simple example
-example_transport_1D;
+berkeley();  % Apply UC Berkeley plotting theme
 ```
 
-### Basic Usage
-```matlab
-% Create transport solver
-solver = SpinTransportSolver();
+### Python Environment
+```bash
+# Create virtual environment
+python -m venv spincirc-env
+source spincirc-env/bin/activate  # Linux/Mac
+# spincirc-env\Scripts\activate     # Windows
 
-% Set geometry (length, width, thickness)
-solver.setGeometry(200e-9, 100e-9, 2e-9);
-
-% Define F/N/F structure
-materials = [MaterialsDB.CoFeB, MaterialsDB.Cu, MaterialsDB.CoFeB];
-solver.setMaterials(materials);
-
-% Set magnetization (parallel configuration)
-magnetization = [1, 0, 0; 1, 0, 0];
-solver.setMagnetization(magnetization);
-
-% Apply boundary conditions and solve
-bc_values = struct('node', [1, 3], 'voltage', [1, 0]);
-solver.setBoundaryConditions('voltage', bc_values);
-[V, I_s, info] = solver.solve('verbose', true);
-
-% Plot results
-solver.plotSolution('component', 'charge');
+# Install dependencies
+pip install -r python/requirements.txt
+pip install -e .  # Install SpinCirc package
 ```
 
-## Scientific Modules
+### Verilog-A Models
+```bash
+# For Cadence Spectre
+cp verilogA/models/*.va $SPECTRE_HOME/tools/spectre/etc/ahdl/
+# For other simulators, consult documentation
+```
 
-### Core Transport Engine
-- **SpinTransportSolver**: Master class for 4×4 conductance matrix calculations
-- **ConductanceMatrix**: F/N/F interface physics and rotation matrices
-- **MaterialsDB**: Comprehensive database with temperature dependencies
-
-### Magnetodynamics Solvers
-- **LLGSolver**: Advanced LLG dynamics with multiple integration schemes
-- **LLGSSolver**: Self-consistent LLGS with spin-transfer torque coupling
-- **Numerical methods**: RK4, RK45, Dormand-Prince, IMEX schemes
-
-### Device Libraries
-- **All-Spin Logic**: ASL inverters, NAND, NOR, XOR gates with optimization
-- **Spin Valves**: Nonlocal spin valves, GMR, TMR devices
-- **Multiferroic Devices**: Voltage-controlled magnetism and switching
-- **SOT Devices**: Spin-orbit torque switching and characterization
-
-### Visualization System
-- **Berkeley Color Scheme**: Publication-quality plotting with UC Berkeley branding
-- **3D Trajectory Plots**: Advanced magnetization dynamics visualization
-- **Statistical Analysis**: Parameter sweeps, optimization, Monte Carlo
-
-## Performance Benchmarks
-
-- **Large-scale simulations**: GPU acceleration with CUDA support
-- **Parallel computing**: MATLAB Parallel Computing Toolbox integration
-- **Memory optimization**: Efficient algorithms for complex systems
-- **Adaptive meshing**: Smart spatial discretization for accuracy
-
-## Testing & Validation
-
-SpinCirc includes comprehensive unit tests and validation examples:
+## 🚀 Usage Example
 
 ```matlab
-% Run all tests
-results = runtests('matlab/tests', 'IncludeSubfolders', true);
+% Quick start: Nonlocal spin valve simulation
+device = NonlocalSpinValve();
+device.setGeometry(2e-6, 100e-9, 10e-9);  % 2μm × 100nm × 10nm
+device.setMaterials('NiFe', 'Cu');
 
-% Generate detailed test report
-results = runtests('matlab/tests', 'OutputDetail', 'Detailed');
+% Hanle measurement
+field_range = linspace(-50e-3, 50e-3, 101);  % ±50 mT
+results = device.measureHanle(100e-6, field_range);
+
+% Plot results with Berkeley styling
+device.plotResults('save_figures', true);
+
+% Extract spin diffusion parameters
+fprintf('Spin diffusion length: %.1f nm\n', results.hanle_fit.lambda_sf*1e9);
+fprintf('Contact polarization: %.1f%%\n', results.hanle_fit.polarization*100);
 ```
 
-**Test Coverage:**
-- Conductance matrix properties and current conservation
-- Energy conservation in magnetodynamics
-- Material parameter validation and consistency
-- Interface modeling accuracy
-- Performance benchmarking and memory optimization
+## 📁 Directory Structure
 
-**Validation Examples (20+ examples):**
-- Basic transport: 1D spin diffusion, Hanle precession, interface resistance
-- Magnetodynamics: LLG precession, hysteresis loops, STT switching
-- Advanced physics: SOT characterization, spin pumping, multiferroic switching
-- Literature reproduction: ASL transient response, NLSV characteristics
-
-## Documentation
-
-Complete documentation is available:
-- **API Reference**: Full MATLAB function documentation
-- **Tutorial Notebooks**: Step-by-step examples in `examples/`
-- **Theory Guide**: Mathematical formalism and implementation details
-- **Device Examples**: Comprehensive validation and benchmarking
-
-## Educational Examples
-
-- **Quick Start Tutorial**: Basic spin transport and magnetization dynamics
-- **Device Simulations**: All-spin logic, spin valves, multiferroic devices
-- **Advanced Analysis**: Monte Carlo, parameter optimization, parallel computing
-- **Literature Reproduction**: Key papers in computational spintronics
-
-## Development
-
-### Repository Structure
 ```
 SpinCirc/
-├── matlab/                     # Core MATLAB framework
-│   ├── core/                   # Physics engines
-│   │   ├── transport/          # 4×4 conductance matrices
-│   │   ├── dynamics/           # LLG/LLGS solvers
-│   │   ├── materials/          # Material databases
-│   │   └── numerical/          # Numerical methods
-│   ├── devices/                # Device implementations
-│   ├── validation/             # 20+ validation examples
-│   ├── style/                  # Berkeley plotting theme
-│   └── tests/                  # Unit test suite
-├── python/                     # Python analysis tools
-├── verilogA/                   # SPICE compact models
-├── docs/                       # Documentation
-├── examples/                   # Tutorial notebooks
-└── data/                       # Reference datasets
+├── matlab/                    # MATLAB framework core
+│   ├── core/                  # Transport solvers and LLG integration
+│   ├── devices/               # Device model library
+│   ├── style/                 # Berkeley plotting theme
+│   ├── tests/                 # Unit tests and validation
+│   └── validation/            # Literature benchmarking
+├── python/                    # Python analysis ecosystem  
+│   ├── analysis/              # Data processing and fitting
+│   ├── ml_tools/              # Machine learning integration
+│   └── visualization/         # Advanced plotting utilities
+├── verilogA/                  # SPICE compact models
+│   ├── models/                # Device compact models (.va)
+│   └── examples/              # Testbench examples
+├── examples/                  # Tutorial and demo scripts
+├── docs/                      # Sphinx documentation
+├── data/                      # Reference datasets
+├── cadence/                   # Cadence integration tools
+├── spice_examples/            # SPICE simulation examples
+└── ci/                        # Continuous integration
 ```
 
-### Contributing
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## 🧪 Testing
 
+### MATLAB Test Suite
+```matlab
+% Run complete test suite
+runtests('matlab/tests');
+
+% Run physics validation examples
+run('matlab/validation/basic_transport/transport_1D_diffusion.m');
+run('matlab/validation/magnetodynamics/llg_damped_precession.m');
+```
+
+### Python Testing
 ```bash
-# Fork and clone
-git clone https://github.com/your-username/SpinCirc.git
-cd SpinCirc
+# Run pytest suite
+pytest python/tests/ -v --cov=python
 
-# Create feature branch
-git checkout -b feature/new-device
-
-# Make changes and test
-matlab -batch "runtests('matlab/tests')"
-
-# Submit pull request
+# Validate against reference data
+python python/validation/benchmark_against_literature.py
 ```
 
-## Citation
+## 📚 Documentation System
+
+The `docs/` folder contains comprehensive Sphinx-based documentation:
+- **API Reference** — Complete function and class documentation
+- **Physics Background** — Theoretical foundation and equations
+- **Tutorial Notebooks** — Step-by-step simulation guides  
+- **Validation Reports** — Benchmarking against experimental literature
+- **Developer Guide** — Contributing guidelines and code standards
+
+Build documentation:
+```bash
+cd docs && make html
+open _build/html/index.html
+```
+
+## 🎨 Visualization Standards
+
+SpinCirc enforces professional scientific plotting standards:
+- **Berkeley Blue** `#003262` for primary data series
+- **California Gold** `#FDB515` for secondary/reference data  
+- **Neutral Gray** `#888888` for auxiliary elements
+- **Typography** — Times New Roman, inward ticks, clean grids
+- **Export Formats** — High-resolution PDF and PNG to `plots/` directory
+
+Apply Berkeley theme automatically:
+```matlab
+berkeley();  % Sets all plotting defaults
+```
+
+## 📚 Citation
 
 If you use SpinCirc in your research, please cite:
 
 ```bibtex
+@software{alawein2025spincirc,
+  author = {Dr. Meshal Alawein},
+  title = {SpinCirc: Advanced Spin Transport Circuit Framework},
+  url = {https://github.com/alaweimm90/SpinCirc},
+  year = {2025},
+  institution = {University of California, Berkeley}
+}
+
 @article{alawein2018circuit,
   title={Circuit Models for Spintronic Devices Subject to Electric and Magnetic Fields},
   author={Alawein, Meshal and Fariborzi, Hamid},
@@ -205,31 +194,22 @@ If you use SpinCirc in your research, please cite:
   number={2},
   pages={76--85},
   year={2018},
-  publisher={IEEE}
-}
-
-@software{spincirc2025,
-  title={SpinCirc: Advanced Spin Transport Circuit Framework},
-  author={Alawein, Dr. Meshal},
-  year={2025},
-  url={https://github.com/alaweimm90/SpinCirc},
-  version={1.0.0}
+  publisher={IEEE},
+  doi={10.1109/JXCDC.2018.2848670}
 }
 ```
 
-## License
+## 🪪 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.  
+© 2025 Dr. Meshal Alawein – All rights reserved.
 
-## Connect & Collaborate
+---
 
 <div align="center">
-
 <strong>Dr. Meshal Alawein</strong><br/>
 <em>Computational Physicist & Research Scientist</em><br/>
 University of California, Berkeley
-
----
 
 📧 <a href="mailto:meshal@berkeley.edu" style="color:#003262;">meshal@berkeley.edu</a>
 
@@ -248,7 +228,6 @@ University of California, Berkeley
 <a href="https://simcore.dev" title="SimCore">
   <img src="https://img.shields.io/badge/SimCore-FDB515?style=flat&logo=atom&logoColor=white" alt="SimCore" height="32" />
 </a>
-
 </div>
 
 <p align="center"><em>
@@ -259,4 +238,4 @@ Science can be hard. This is my way of helping. ⚛️
 
 ---
 
-*Crafted with love, 🐻 energy, and zero sleep.*
+Crafted with love, 🐻 energy, and zero sleep.
