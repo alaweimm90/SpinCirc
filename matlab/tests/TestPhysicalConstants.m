@@ -305,6 +305,9 @@ classdef TestPhysicalConstants < matlab.unittest.TestCase
             testCase.verifyTrue(ischar(all_const.source) || isstring(all_const.source));
             testCase.verifyTrue(ischar(all_const.timestamp) || isstring(all_const.timestamp));
             testCase.verifyTrue(ischar(all_const.version) || isstring(all_const.version));
+            
+            % Version should be reasonable format
+            testCase.verifyTrue(~isempty(regexp(all_const.version, '^\d+\.\d+', 'once')));
         end
         
         function testGyromagneticRatios(testCase)
