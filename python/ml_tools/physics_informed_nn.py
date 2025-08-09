@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Physics-Informed Neural Networks for Spintronic Devices
+Physics-Informed Neural Networks for spin transport and LLG dynamics.
 
-Implementation of PINNs for solving spin transport equations and LLG dynamics
-with physics constraints embedded in the loss function.
+Embeds spin diffusion and magnetization physics as loss function constraints.
+Solves coupled transport-dynamics problems without explicit discretization.
 
 Author: Dr. Meshal Alawein <meshal@berkeley.edu>
 Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PINNConfig:
-    """Configuration for Physics-Informed Neural Networks"""
+    """PINN training configuration"""
     hidden_layers: List[int] = None
     activation: str = 'tanh'
     learning_rate: float = 1e-3
@@ -73,35 +73,31 @@ class PhysicsInformedNN(nn.Module, ABC):
         self.boundary_loss_history = []
         
     def _build_network(self) -> nn.Module:
-        """Build the neural network architecture"""
+        """Build network with hidden layers and activation functions"""
         layers = []
         
-        # Input layer
         layers.append(nn.Linear(self.input_dim, self.config.hidden_layers[0]))
         layers.append(self._get_activation())
         
-        # Hidden layers
         for i in range(len(self.config.hidden_layers) - 1):
             layers.append(nn.Linear(self.config.hidden_layers[i], self.config.hidden_layers[i+1]))
             layers.append(self._get_activation())
         
-        # Output layer
         layers.append(nn.Linear(self.config.hidden_layers[-1], self.output_dim))
         
         return nn.Sequential(*layers)
     
     def _get_activation(self) -> nn.Module:
-        """Get activation function"""
-        if self.config.activation == 'tanh':
-            return nn.Tanh()
-        elif self.config.activation == 'relu':
-            return nn.ReLU()
-        elif self.config.activation == 'sigmoid':
-            return nn.Sigmoid()
-        elif self.config.activation == 'swish':
-            return nn.SiLU()
-        else:
+        """Select activation function"""
+        activations = {
+            'tanh': nn.Tanh,
+            'relu': nn.ReLU,
+            'sigmoid': nn.Sigmoid,
+            'swish': nn.SiLU
+        }
+        if self.config.activation not in activations:
             raise ValueError(f"Unknown activation: {self.config.activation}")
+        return activations[self.config.activation]()
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through network"""
@@ -110,28 +106,28 @@ class PhysicsInformedNN(nn.Module, ABC):
     @property
     @abstractmethod
     def input_dim(self) -> int:
-        """Input dimension of the network"""
+        """Network input dimension"""
         pass
     
     @property
     @abstractmethod
     def output_dim(self) -> int:
-        """Output dimension of the network"""
+        """Network output dimension"""
         pass
     
     @abstractmethod
     def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
-        """Calculate physics-based loss"""
+        """Physics-based loss from PDE residuals"""
         pass
     
     def data_loss(self, x: torch.Tensor, y_true: torch.Tensor) -> torch.Tensor:
-        """Calculate data fitting loss"""
+        """MSE loss against training data"""
         y_pred = self.forward(x)
         return nn.MSELoss()(y_pred, y_true)
     
     def boundary_loss(self, x_boundary: torch.Tensor, 
                      boundary_values: torch.Tensor) -> torch.Tensor:
-        """Calculate boundary condition loss"""
+        """MSE loss for boundary conditions"""
         y_boundary = self.forward(x_boundary)
         return nn.MSELoss()(y_boundary, boundary_values)
     
@@ -140,22 +136,18 @@ class PhysicsInformedNN(nn.Module, ABC):
                    y_data: Optional[torch.Tensor] = None,
                    x_boundary: Optional[torch.Tensor] = None,
                    y_boundary: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Dict[str, float]]:
-        """Calculate total loss with physics, data, and boundary terms"""
+        """Weighted sum of physics, data, and boundary losses"""
         
-        # Physics loss
         loss_physics = self.physics_loss(x_physics)
         
-        # Data loss
         loss_data = torch.tensor(0.0, device=self.device)
         if x_data is not None and y_data is not None:
             loss_data = self.data_loss(x_data, y_data)
         
-        # Boundary loss
         loss_boundary = torch.tensor(0.0, device=self.device)
         if x_boundary is not None and y_boundary is not None:
             loss_boundary = self.boundary_loss(x_boundary, y_boundary)
         
-        # Total weighted loss
         total_loss = (self.config.physics_weight * loss_physics +
                      self.config.data_weight * loss_data +
                      self.config.boundary_weight * loss_boundary)
@@ -174,9 +166,9 @@ class PhysicsInformedNN(nn.Module, ABC):
                    y_data: Optional[torch.Tensor] = None,
                    x_boundary: Optional[torch.Tensor] = None,
                    y_boundary: Optional[torch.Tensor] = None) -> Dict[str, List[float]]:
-        """Train the PINN model"""
+        """Train PINN with Adam optimizer and early stopping"""
         
-        logger.info(f"Starting PINN training on {self.device}")
+        logger.info(f"Training PINN on {self.device}")
         logger.info(f"Physics points: {len(x_physics)}")
         if x_data is not None:
             logger.info(f"Data points: {len(x_data)}")
@@ -190,28 +182,22 @@ class PhysicsInformedNN(nn.Module, ABC):
         for epoch in range(self.config.max_epochs):
             self.optimizer.zero_grad()
             
-            # Calculate total loss
             loss, loss_dict = self.total_loss(x_physics, x_data, y_data, 
                                             x_boundary, y_boundary)
             
-            # Backward pass
             loss.backward()
             self.optimizer.step()
             
-            # Store loss history
             self.loss_history.append(loss_dict['total'])
             self.physics_loss_history.append(loss_dict['physics'])
             self.data_loss_history.append(loss_dict['data'])
             self.boundary_loss_history.append(loss_dict['boundary'])
             
-            # Learning rate scheduling
             self.scheduler.step(loss)
             
-            # Early stopping
             if loss_dict['total'] < best_loss:
                 best_loss = loss_dict['total']
                 patience_counter = 0
-                # Save best model
                 torch.save(self.state_dict(), 'best_pinn_model.pth')
             else:
                 patience_counter += 1
@@ -220,14 +206,12 @@ class PhysicsInformedNN(nn.Module, ABC):
                 logger.info(f"Early stopping at epoch {epoch}")
                 break
             
-            # Progress logging
             if epoch % 1000 == 0 or epoch == self.config.max_epochs - 1:
                 logger.info(f"Epoch {epoch:5d}: Loss = {loss_dict['total']:.2e} "
                           f"[Physics: {loss_dict['physics']:.2e}, "
                           f"Data: {loss_dict['data']:.2e}, "
                           f"Boundary: {loss_dict['boundary']:.2e}]")
         
-        # Load best model
         self.load_state_dict(torch.load('best_pinn_model.pth'))
         
         return {
@@ -238,7 +222,7 @@ class PhysicsInformedNN(nn.Module, ABC):
         }
     
     def predict(self, x: torch.Tensor) -> torch.Tensor:
-        """Make predictions with trained model"""
+        """Predict with trained model in eval mode"""
         self.eval()
         with torch.no_grad():
             return self.forward(x)
@@ -282,7 +266,7 @@ class PhysicsInformedNN(nn.Module, ABC):
         plt.show()
 
 class SpinTransportPINN(PhysicsInformedNN):
-    """PINN for solving spin transport equations"""
+    """PINN for 3D spin diffusion equations in F/N heterostructures"""
     
     def __init__(self, config: PINNConfig, material_params: Dict[str, float]):
         self.material_params = material_params
@@ -290,44 +274,39 @@ class SpinTransportPINN(PhysicsInformedNN):
     
     @property
     def input_dim(self) -> int:
-        return 3  # (x, y, z) spatial coordinates
+        return 3  # (x, y, z)
     
     @property
     def output_dim(self) -> int:
-        return 4  # (V_c, V_sx, V_sy, V_sz) - charge and spin voltages
+        return 4  # (V_c, V_sx, V_sy, V_sz)
     
     def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
-        """Physics loss for spin diffusion equation"""
+        """Residual loss from spin diffusion and charge continuity PDEs"""
         x.requires_grad_(True)
         
-        # Forward pass
         u = self.forward(x)
         
-        # Split into charge and spin components
         V_c = u[:, 0:1]
         V_sx = u[:, 1:2] 
         V_sy = u[:, 2:3]
         V_sz = u[:, 3:4]
         
-        # Material parameters
         lambda_sf = self.material_params['lambda_sf']
         
-        # Calculate gradients
         def calculate_laplacian(V, x):
-            """Calculate Laplacian using automatic differentiation"""
+            """∇²V using automatic differentiation"""
             grad_outputs = torch.ones_like(V)
             grad_V = grad(V, x, grad_outputs=grad_outputs, create_graph=True)[0]
             
-            # Second derivatives
             laplacian = 0
-            for i in range(3):  # x, y, z dimensions
+            for i in range(3):
                 grad2_V = grad(grad_V[:, i:i+1], x, grad_outputs=grad_outputs, 
                              create_graph=True)[0][:, i:i+1]
                 laplacian = laplacian + grad2_V
             
             return laplacian
         
-        # Spin diffusion equations: ∇²V_s - V_s/λ_sf² = 0
+        # Spin diffusion: ∇²V_s - V_s/λ_sf² = 0
         laplacian_sx = calculate_laplacian(V_sx, x)
         laplacian_sy = calculate_laplacian(V_sy, x)
         laplacian_sz = calculate_laplacian(V_sz, x)
@@ -336,10 +315,9 @@ class SpinTransportPINN(PhysicsInformedNN):
         pde_sy = laplacian_sy - V_sy / (lambda_sf**2)
         pde_sz = laplacian_sz - V_sz / (lambda_sf**2)
         
-        # Charge continuity: ∇²V_c = 0 (Laplace equation)
+        # Charge continuity: ∇²V_c = 0
         pde_c = calculate_laplacian(V_c, x)
         
-        # Combine all PDE residuals
         physics_loss = torch.mean(pde_c**2 + pde_sx**2 + pde_sy**2 + pde_sz**2)
         
         return physics_loss
