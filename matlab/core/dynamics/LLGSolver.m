@@ -1,39 +1,31 @@
 function [m, t, solution_info] = LLGSolver(m0, Heff, alpha, gamma, tspan, varargin)
-% LLGSOLVER - Advanced LLG dynamics solver with multiple integration schemes
+% LLGSOLVER - LLG dynamics solver with adaptive timestep control
 %
-% This function solves the Landau-Lifshitz-Gilbert (LLG) equation:
-% dm/dt = -γ/(1+α²) * [m × H_eff + α * m × (m × H_eff)]
+% Solves dm/dt = -γ/(1+α²) * [m × H_eff + α * m × (m × H_eff)]
 %
-% Features:
-%   - Multiple integration schemes: RK4, RK45, Dormand-Prince, IMEX
-%   - Adaptive timestep control
-%   - Energy conservation monitoring
-%   - Magnetization magnitude conservation
-%   - Event detection (switching, precession)
+% Features: RK4/RK45/Dormand-Prince/IMEX methods, adaptive timestep,
+% energy/magnetization conservation, event detection
 %
 % Inputs:
-%   m0 - Initial magnetization vector (3x1 or 3xN for multiple magnets)
-%   Heff - Effective field function handle or constant field
+%   m0 - Initial magnetization (3x1 or 3xN)
+%   Heff - Effective field function or constant
 %   alpha - Gilbert damping parameter
 %   gamma - Gyromagnetic ratio (rad⋅s⁻¹⋅T⁻¹)
 %   tspan - Time span [t0, tf] or time vector
-%   varargin - Optional parameters (see options below)
+%   varargin - Optional parameters
 %
-% Optional Parameters:
-%   'Method' - Integration method ('RK45', 'RK4', 'DP54', 'IMEX')
-%   'RelTol' - Relative tolerance (default: 1e-6)
-%   'AbsTol' - Absolute tolerance (default: 1e-8)
-%   'MaxStep' - Maximum time step (default: auto)
-%   'InitialStep' - Initial time step (default: auto)
-%   'ConserveEnergy' - Enforce energy conservation (default: true)
-%   'ConserveMagnetization' - Enforce |m| = 1 (default: true)
+% Options:
+%   'Method' - 'RK45', 'RK4', 'DP54', 'IMEX' (default: 'RK45')
+%   'RelTol', 'AbsTol' - Error tolerances (1e-6, 1e-8)
+%   'MaxStep', 'InitialStep' - Step size control
+%   'ConserveEnergy', 'ConserveMagnetization' - Conservation flags
 %   'Events' - Event detection function handle
-%   'Verbose' - Display progress (default: false)
+%   'Verbose' - Progress display
 %
 % Outputs:
 %   m - Magnetization trajectory (3xN or 3xNxM)
 %   t - Time vector
-%   solution_info - Solution statistics and diagnostics
+%   solution_info - Solver diagnostics
 %
 % Example:
 %   m0 = [1; 0; 0];
@@ -240,14 +232,10 @@ function [m, t, solution_info] = LLGSolver(m0, Heff, alpha, gamma, tspan, vararg
 end
 
 function validateInputs(m0, tspan, options)
-    % Validate input parameters
-    
-    % Check magnetization dimensions
     if size(m0, 1) ~= 3
         error('Initial magnetization must have 3 components');
     end
     
-    % Check time span
     if length(tspan) < 2
         error('Time span must have at least 2 elements');
     end
@@ -256,63 +244,49 @@ function validateInputs(m0, tspan, options)
         error('Time span must be monotonically increasing');
     end
     
-    % Check method
     valid_methods = {'RK4', 'RK45', 'DP54', 'IMEX'};
     if ~ismember(options.Method, valid_methods)
-        error('Invalid integration method. Choose from: %s', strjoin(valid_methods, ', '));
+        error('Invalid method. Choose from: %s', strjoin(valid_methods, ', '));
     end
 end
 
 function m_norm = normalizemagnetization(m)
-    % Normalize magnetization vectors to unit length
-    
     magnitudes = vecnorm(m, 2, 1);
-    magnitudes(magnitudes == 0) = 1;  % Avoid division by zero
+    magnitudes(magnitudes == 0) = 1;
     m_norm = m ./ magnitudes;
 end
 
 function dt0 = estimateInitialStep(m0, Heff, alpha, gamma, t0)
-    % Estimate initial time step based on field strength and damping
-    
     H = Heff(t0, m0);
     H_magnitude = max(vecnorm(H, 2, 1));
     
     if H_magnitude > 0
-        % Base estimate on precession frequency
         omega_max = gamma * H_magnitude;
-        dt0 = 0.01 / omega_max;  % 100 points per precession period
+        dt0 = 0.01 / omega_max;
         
-        % Adjust for damping
         if alpha > 0
             tau_damping = 1 / (alpha * omega_max);
             dt0 = min(dt0, tau_damping / 10);
         end
     else
-        dt0 = 1e-12;  % Default for zero field
+        dt0 = 1e-12;
     end
     
-    % Reasonable bounds
     dt0 = max(dt0, 1e-15);
     dt0 = min(dt0, 1e-9);
 end
 
 function E = calculateEnergy(m, Heff, t)
-    % Calculate magnetic energy
-    
     H = Heff(t, m);
-    
-    % Zeeman energy: E = -μ₀ * M · H
-    mu0 = 4*pi*1e-7;  % Permeability of free space
-    E = -mu0 * sum(sum(m .* H, 1));  % Sum over all magnets
+    mu0 = 4*pi*1e-7;
+    E = -mu0 * sum(sum(m .* H, 1));
 end
 
 function [m_new, dt_new, success, error_est] = takeStep(t, m, dt, Heff, alpha, gamma, options)
-    % Take a single integration step
-    
     switch options.Method
         case 'RK4'
             [m_new, error_est] = rk4Step(t, m, dt, Heff, alpha, gamma);
-            dt_new = dt;  % Fixed step size
+            dt_new = dt;
             success = true;
             
         case 'RK45'
@@ -325,7 +299,7 @@ function [m_new, dt_new, success, error_est] = takeStep(t, m, dt, Heff, alpha, g
             [m_new, error_est, dt_new, success] = imexStep(t, m, dt, Heff, alpha, gamma, options);
             
         otherwise
-            error('Unknown integration method: %s', options.Method);
+            error('Unknown method: %s', options.Method);
     end
 end
 
