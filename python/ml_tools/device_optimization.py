@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Device Optimization using Advanced ML Techniques
+Multi-objective optimization for spintronic device design.
 
-Multi-objective optimization of spintronic devices using various algorithms
-including genetic algorithms, Bayesian optimization, and neural optimization.
+Uses NSGA-II/III, Bayesian optimization, and genetic algorithms to optimize
+device performance metrics like TMR, switching energy, and speed.
 
 Author: Dr. Meshal Alawein <meshal@berkeley.edu>
 Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class OptimizationConfig:
-    """Configuration for device optimization"""
-    algorithm: str = 'nsga2'  # 'nsga2', 'nsga3', 'bayesian', 'genetic'
+    """Optimization algorithm settings"""
+    algorithm: str = 'nsga2'
     n_generations: int = 100
     population_size: int = 50
     n_trials: int = 1000
@@ -43,24 +43,14 @@ class OptimizationConfig:
     verbose: bool = True
 
 class SpintronicDeviceProblem(Problem):
-    """Multi-objective optimization problem for spintronic devices"""
+    """Pymoo problem wrapper for device optimization"""
     
     def __init__(self, device_simulator: Callable, design_space: Dict[str, Tuple],
                  objectives: List[str], constraints: List[str] = None):
-        """
-        Initialize optimization problem
-        
-        Args:
-            device_simulator: Function that simulates device given parameters
-            design_space: Dictionary of parameter bounds {name: (min, max)}
-            objectives: List of objective function names
-            constraints: List of constraint function names
-        """
         self.device_simulator = device_simulator
         self.design_space = design_space
         self.param_names = list(design_space.keys())
         
-        # Extract bounds
         xl = np.array([bounds[0] for bounds in design_space.values()])
         xu = np.array([bounds[1] for bounds in design_space.values()])
         
@@ -75,35 +65,30 @@ class SpintronicDeviceProblem(Problem):
         self.evaluation_history = []
         
     def _evaluate(self, X, out, *args, **kwargs):
-        """Evaluate objective functions and constraints"""
+        """Run device simulations and extract objective/constraint values"""
         n_samples = X.shape[0]
         objectives = np.zeros((n_samples, self.n_obj))
         constraints = np.zeros((n_samples, self.n_constr)) if self.n_constr > 0 else None
         
         for i in range(n_samples):
-            # Convert array to parameter dictionary
             params = dict(zip(self.param_names, X[i, :]))
             
             try:
-                # Simulate device
                 results = self.device_simulator(params)
                 
-                # Extract objectives
                 for j, obj_name in enumerate(self.objectives):
                     if obj_name in results:
                         objectives[i, j] = results[obj_name]
                     else:
-                        objectives[i, j] = np.inf  # Penalty for failed simulation
+                        objectives[i, j] = np.inf
                 
-                # Extract constraints
                 if self.n_constr > 0:
                     for j, constr_name in enumerate(self.constraints):
                         if constr_name in results:
                             constraints[i, j] = results[constr_name]
                         else:
-                            constraints[i, j] = 1e6  # Large constraint violation
+                            constraints[i, j] = 1e6
                 
-                # Store evaluation history
                 self.evaluation_history.append({
                     'parameters': params.copy(),
                     'objectives': dict(zip(self.objectives, objectives[i, :])),
@@ -111,7 +96,7 @@ class SpintronicDeviceProblem(Problem):
                 })
                 
             except Exception as e:
-                logger.warning(f"Simulation failed for parameters {params}: {e}")
+                logger.warning(f"Simulation failed for {params}: {e}")
                 objectives[i, :] = np.inf
                 if self.n_constr > 0:
                     constraints[i, :] = 1e6
@@ -121,15 +106,9 @@ class SpintronicDeviceProblem(Problem):
             out["G"] = constraints
 
 class DeviceOptimizer:
-    """Advanced multi-objective optimizer for spintronic devices"""
+    """Multi-objective optimizer for MTJs, spin valves, and ASL devices"""
     
     def __init__(self, config: Optional[OptimizationConfig] = None):
-        """
-        Initialize device optimizer
-        
-        Args:
-            config: Optimization configuration
-        """
         self.config = config or OptimizationConfig()
         self.optimization_history = []
         self.best_solutions = []
