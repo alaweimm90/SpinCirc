@@ -13,7 +13,7 @@ Core functionality:
 - **Spin Transport** — Drift-diffusion solver with 4×4 conductance matrix
 - **Magnetization Dynamics** — LLG/LLGS integration with thermal noise
 - **Device Models** — MTJs, spin valves, all-spin logic, multiferroic devices
-- **Circuit Integration** — SPICE-compatible compact models
+- **Circuit Integration** — EDA-compatible compact models
 - **Material Database** — Properties for common spintronic materials
 
 ## Implementation
