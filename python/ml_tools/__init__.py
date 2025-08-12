@@ -3,8 +3,8 @@ SpinCirc Machine Learning Tools
 
 Advanced ML tools for spintronic device modeling and optimization.
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

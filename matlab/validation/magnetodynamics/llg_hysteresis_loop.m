@@ -35,7 +35,7 @@ function results = llg_hysteresis_loop(varargin)
 %   results = llg_hysteresis_loop('FieldRange', 100e-3, 'SweepRate', 1e6);
 %
 % Author: Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Parse input arguments

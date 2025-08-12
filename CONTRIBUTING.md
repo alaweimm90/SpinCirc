@@ -173,7 +173,7 @@ function [output1, output2] = functionName(input1, input2, varargin)
 %   [1] Author et al., "Title," Journal, vol, pp, year.
 %
 % Author: Your Name <email@domain.com>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Input validation

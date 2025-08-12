@@ -29,8 +29,8 @@ function [x, info] = sparse_solver(A, b, varargin)
 %   x    - Solution vector(s)
 %   info - Information structure with solver statistics
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Input validation

@@ -4,8 +4,8 @@ SpinCirc Visualization Tools
 Advanced visualization and plotting tools for spintronic device data
 with Berkeley-themed styling and interactive capabilities.
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

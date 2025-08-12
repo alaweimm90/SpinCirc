@@ -2,8 +2,8 @@
 % This script demonstrates the basic usage of the SpinCirc framework
 % for computational spintronics research.
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
 %% Initialize SpinCirc

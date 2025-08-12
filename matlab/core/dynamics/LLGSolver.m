@@ -32,8 +32,8 @@ function [m, t, solution_info] = LLGSolver(m0, Heff, alpha, gamma, tspan, vararg
 %   H = @(t, m) [0; 0; 1] + 0.1*sin(2*pi*10e9*t)*[1; 0; 0];
 %   [m, t] = LLGSolver(m0, H, 0.01, 1.76e11, [0, 10e-9]);
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Parse input arguments

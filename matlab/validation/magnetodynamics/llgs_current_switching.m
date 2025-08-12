@@ -32,7 +32,7 @@ function results = llgs_current_switching(varargin)
 %   results = llgs_current_switching('CurrentRange', [1e11, 5e11], 'PlotResults', true);
 %
 % Author: Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Parse input arguments

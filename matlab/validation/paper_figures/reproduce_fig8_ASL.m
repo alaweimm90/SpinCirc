@@ -40,7 +40,7 @@ function results = reproduce_fig8_ASL(varargin)
 %   results = reproduce_fig8_ASL('Verbose', true, 'IncludeVariations', true);
 %
 % Author: Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Parse input arguments

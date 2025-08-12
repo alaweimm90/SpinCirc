@@ -4,8 +4,8 @@
 # This script builds multiple variants of the SpinCirc Docker image
 # for different use cases and architectures.
 #
-# Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-# Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+# Author: Meshal Alawein <meshal@berkeley.edu>
+# Copyright © 2025 Meshal Alawein — All rights reserved.
 # License: MIT
 
 set -e

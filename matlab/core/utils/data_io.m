@@ -39,8 +39,8 @@ function varargout = data_io(operation, varargin)
 %   % Batch process multiple files
 %   data_io('batch_process', '*.mat', @process_function)
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     if nargin < 1

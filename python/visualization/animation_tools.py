@@ -5,8 +5,8 @@ Animation Tools for SpinCirc
 Create animated visualizations of spintronic device dynamics including
 magnetization precession, current flow, and parameter sweeps.
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

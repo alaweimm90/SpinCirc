@@ -4,8 +4,8 @@ classdef TestAdaptiveODESolver < matlab.unittest.TestCase
     % This test class validates the adaptive ODE solver functionality
     % including different integration methods and error control.
     %
-    % Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-    % Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+    % Author: Meshal Alawein <meshal@berkeley.edu>
+    % Copyright © 2025 Meshal Alawein — All rights reserved.
     % License: MIT
     
     methods(Test)

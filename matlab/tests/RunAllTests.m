@@ -31,8 +31,8 @@ function results = RunAllTests(varargin)
 %   % Run only unit conversion tests
 %   results = RunAllTests('TestFilter', '*UnitConversions*')
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Parse input arguments

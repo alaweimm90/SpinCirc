@@ -5,8 +5,8 @@ Parameter Extraction using Machine Learning
 Advanced parameter extraction from experimental data using various ML techniques
 including Bayesian inference, neural networks, and genetic algorithms.
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

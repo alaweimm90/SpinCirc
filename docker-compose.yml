@@ -7,8 +7,8 @@
 #   docker-compose run --rm spincirc bash   # Interactive shell
 #   docker-compose down                     # Stop all services
 #
-# Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-# Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+# Author: Meshal Alawein <meshal@berkeley.edu>
+# Copyright © 2025 Meshal Alawein — All rights reserved.
 # License: MIT
 
 version: '3.8'

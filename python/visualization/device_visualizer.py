@@ -5,8 +5,8 @@
 Advanced 3D visualization of spintronic devices including geometry,
 magnetic fields, current flow, and material properties.
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

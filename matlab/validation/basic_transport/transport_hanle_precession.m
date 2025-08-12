@@ -29,7 +29,7 @@ function results = transport_hanle_precession(varargin)
 %   results = transport_hanle_precession('FieldRange', [-100e-3, 100e-3], 'PlotResults', true);
 %
 % Author: Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Parse input arguments

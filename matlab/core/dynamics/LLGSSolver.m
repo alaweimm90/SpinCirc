@@ -35,8 +35,8 @@ function [m, t, I_s, solution_info] = LLGSSolver(m0, transport_params, current_p
 %   I_s - Spin current evolution
 %   solution_info - Detailed solution information
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     % Parse input arguments

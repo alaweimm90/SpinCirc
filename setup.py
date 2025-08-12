@@ -21,7 +21,7 @@ def read_requirements():
 setup(
     name="spincirc",
     version="1.0.0",
-    author="Dr. Meshal Alawein",
+    author="Meshal Alawein",
     author_email="meshal@berkeley.edu",
     description="Advanced Spin Transport Circuit Framework for Computational Spintronics",
     long_description=read_readme(),

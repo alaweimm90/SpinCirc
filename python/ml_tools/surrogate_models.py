@@ -5,8 +5,8 @@ Surrogate Models for Fast Spintronic Device Simulation
 Fast approximate models using various ML techniques to replace expensive
 physics simulations for optimization and parameter studies.
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

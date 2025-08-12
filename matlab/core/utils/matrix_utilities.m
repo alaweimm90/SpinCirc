@@ -39,8 +39,8 @@ function varargout = matrix_utilities(operation, varargin)
 %   % Commutator
 %   comm = matrix_utilities('commutator', A, B)
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     if nargin < 1

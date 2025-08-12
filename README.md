@@ -134,7 +134,7 @@ berkeley();  % Apply UC Berkeley theme
 
 ```bibtex
 @software{alawein2025spincirc,
-  author = {Dr. Meshal Alawein},
+  author = {Meshal Alawein},
   title = {SpinCirc: Advanced Spin Transport Circuit Framework},
   url = {https://github.com/alaweimm90/SpinCirc},
   year = {2025},
@@ -158,12 +158,12 @@ berkeley();  % Apply UC Berkeley theme
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**Copyright © 2025 Dr. Meshal Alawein — All rights reserved.**
+**Copyright © 2025 Meshal Alawein — All rights reserved.**
 
 ---
 
 ---
 
-**Dr. Meshal Alawein**  
+**Meshal Alawein**  
 University of California, Berkeley  
 📧 meshal@berkeley.edu

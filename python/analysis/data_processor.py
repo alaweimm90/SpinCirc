@@ -11,8 +11,8 @@ Features:
 - Data validation and quality assessment
 - Export to various formats (CSV, HDF5, JSON)
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

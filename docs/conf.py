@@ -12,8 +12,8 @@ sys.path.insert(0, os.path.abspath('../python'))
 # -- Project information -----------------------------------------------------
 
 project = 'SpinCirc'
-copyright = f'2025, Dr. Meshal Alawein, UC Berkeley'
-author = 'Dr. Meshal Alawein'
+copyright = f'2025, Meshal Alawein, UC Berkeley'
+author = 'Meshal Alawein'
 release = '1.0.0'
 version = '1.0.0'
 

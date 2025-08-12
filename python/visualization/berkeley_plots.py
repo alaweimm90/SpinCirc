@@ -5,8 +5,8 @@ Berkeley-Themed Plotting for SpinCirc
 Professional publication-quality plotting with UC Berkeley visual identity.
 Implements the official Berkeley color palette and styling guidelines.
 
-Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+Author: Meshal Alawein <meshal@berkeley.edu>
+Copyright © 2025 Meshal Alawein — All rights reserved.
 License: MIT
 """
 

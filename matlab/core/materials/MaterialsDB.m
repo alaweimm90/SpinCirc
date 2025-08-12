@@ -17,8 +17,8 @@ classdef MaterialsDB < handle
 %   params_T = MaterialsDB.getTemperatureDependence('CoFeB', 350);
 %   interface_params = MaterialsDB.getInterfaceParameters('CoFeB', 'MgO');
 %
-% Author: Dr. Meshal Alawein <meshal@berkeley.edu>
-% Copyright © 2025 Dr. Meshal Alawein — All rights reserved.
+% Author: Meshal Alawein <meshal@berkeley.edu>
+% Copyright © 2025 Meshal Alawein — All rights reserved.
 % License: MIT
 
     properties (Constant)
